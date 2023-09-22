@@ -6,33 +6,29 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-# Step 1: Load the dataset
+#Load the dataset
 df = pd.read_csv("og_ucf101_features.csv")
 df['video_features'] = df['video_features'].apply(lambda x: list(map(float, x.strip("[]").split())))
 df['video_features'] = df['video_features'].apply(np.array)
 
-# Step 2: Preprocess the features and labels
-# Assuming video_features are stored as string representations of lists
 # Convert them into numpy arrays
 X = np.stack(df['video_features'].values)
 
-# # Convert labels into integers using LabelEncoder
 le = LabelEncoder()
 df['video_label'] = le.fit_transform(df['video_label'])
 
-# Step 3: Split the data into training and testing sets
-X = np.stack(df['video_features'].values)  # Assuming video_features is a column of numpy arrays
+# Split the data
+X = np.stack(df['video_features'].values)
 y = df['video_label'].values
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Convert to PyTorch tensors
 X_train = torch.tensor(X_train, dtype=torch.float32)
 y_train = torch.tensor(y_train, dtype=torch.long)
 X_test = torch.tensor(X_test, dtype=torch.float32)
 y_test = torch.tensor(y_test, dtype=torch.long)
 
-# Step 4: Define a neural network model
+# neural network model
 class NeuralNet(nn.Module):
     def __init__(self, input_dim, output_dim):
         super(NeuralNet, self).__init__()
@@ -65,11 +61,10 @@ input_dim = X_train.shape[1]
 output_dim = len(set(y_train.tolist()))
 model = NeuralNet(input_dim, output_dim)
 
-# Step 5: Train the model
+# Train model
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Training the model
 epochs = 50
 for epoch in range(epochs):
     # Forward pass
@@ -83,7 +78,7 @@ for epoch in range(epochs):
 
     print(f'Epoch [{epoch + 1}/{epochs}], Loss: {loss.item():.4f}')
 
-# Validate the model
+# Validate model
 model.eval()
 with torch.no_grad():
     correct = 0
